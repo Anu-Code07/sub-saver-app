@@ -1,0 +1,93 @@
+name: subsaver
+description: SubSavr — Shared Subscription Wallet
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_bloc: ^9.1.1
+  bloc: ^9.0.0
+  equatable: ^2.0.7
+
+  # DI
+  get_it: ^8.0.3
+
+  # Routing
+  go_router: ^15.1.2
+
+  # Firebase
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.2
+  cloud_firestore: ^5.6.6
+  firebase_messaging: ^15.2.5
+  firebase_analytics: ^11.4.5
+  firebase_crashlytics: ^4.3.5
+  firebase_storage: ^12.4.5
+  cloud_functions: ^5.4.0
+
+  # Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.5.3
+
+  # Network
+  dio: ^5.8.0+1
+
+  # Code gen runtime
+  json_annotation: ^4.9.0
+
+  # UI
+  fl_chart: ^0.70.2
+  lottie: ^3.3.1
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^7.0.0
+  google_fonts: ^6.2.1
+  lucide_icons_flutter: ^3.0.0
+
+  # Auth
+  google_sign_in: ^6.3.0
+  sign_in_with_apple: ^7.0.1
+
+  # Utils
+  intl: ^0.20.2
+  uuid: ^4.5.1
+  connectivity_plus: ^6.1.4
+  flutter_local_notifications: ^19.0.0
+  dartz: ^0.10.1
+  image_picker: ^1.1.2
+  share_plus: ^11.0.0
+  permission_handler: ^12.0.1
+  file_picker: ^10.2.0
+  google_mlkit_text_recognition: ^0.15.0
+  path: ^1.9.1
+  url_launcher: ^6.3.1
+  flutter_slidable: ^4.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.15
+  json_serializable: ^6.9.5
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/providers/
+    - assets/lottie/
+    - assets/images/
