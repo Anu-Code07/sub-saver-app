@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:subsaver/core/config/app_config.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_event.dart';
@@ -22,6 +23,7 @@ class _BiometricLockPageState extends State<BiometricLockPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (AppConfig.allowBiometricBypass) return;
       context.read<AuthBloc>().add(const AuthBiometricUnlockRequested());
     });
   }
@@ -122,6 +124,19 @@ class _BiometricLockPageState extends State<BiometricLockPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      if (AppConfig.allowBiometricBypass) ...[
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            context
+                                .read<AuthBloc>()
+                                .add(const AuthBiometricBypassRequested());
+                          },
+                          icon: const Icon(Icons.developer_mode_outlined, size: 18),
+                          label: const Text('Skip unlock (emulator)'),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       TextButton(
                         onPressed: () => context
                             .read<AuthBloc>()

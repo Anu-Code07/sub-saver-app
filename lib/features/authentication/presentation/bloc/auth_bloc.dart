@@ -15,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required SignInWithApple signInWithApple,
     required SignOut signOut,
     required UnlockWithBiometric unlockWithBiometric,
+    required RestoreTrustedSession restoreTrustedSession,
     required ClearTrustedSession clearTrustedSession,
   })  : _authRepository = authRepository,
         _signInWithPhone = signInWithPhone,
@@ -23,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _signInWithApple = signInWithApple,
         _signOut = signOut,
         _unlockWithBiometric = unlockWithBiometric,
+        _restoreTrustedSession = restoreTrustedSession,
         _clearTrustedSession = clearTrustedSession,
         super(const AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
@@ -32,6 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthAppleSignInRequested>(_onAppleSignIn);
     on<AuthSignOutRequested>(_onSignOut);
     on<AuthBiometricUnlockRequested>(_onBiometricUnlock);
+    on<AuthBiometricBypassRequested>(_onBiometricBypass);
     on<AuthUseDifferentAccountRequested>(_onUseDifferentAccount);
 
     _authSubscription = _authRepository.authStateChanges.listen((_) {
@@ -46,6 +49,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithApple _signInWithApple;
   final SignOut _signOut;
   final UnlockWithBiometric _unlockWithBiometric;
+  final RestoreTrustedSession _restoreTrustedSession;
   final ClearTrustedSession _clearTrustedSession;
   StreamSubscription<dynamic>? _authSubscription;
 
@@ -165,6 +169,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         phone: pending.phone,
         errorMessage: failure.message,
       )),
+      (user) {
+        _sessionUnlocked = true;
+        emit(AuthAuthenticated(user));
+      },
+    );
+  }
+
+  Future<void> _onBiometricBypass(
+    AuthBiometricBypassRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final result = await _restoreTrustedSession();
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
       (user) {
         _sessionUnlocked = true;
         emit(AuthAuthenticated(user));

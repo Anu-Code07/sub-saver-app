@@ -6,7 +6,7 @@ import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/utils/formatters.dart';
 import 'package:subsaver/core/utils/gmail_subscription_parser.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_state.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -68,7 +68,7 @@ class _GmailImportPageState extends State<GmailImportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PremiumAppBar(title: 'Import Subscriptions', showBack: true),
+      appBar: const SubSavrAppBar(title: 'Import Subscriptions', showBack: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

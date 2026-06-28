@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/utils/formatters.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
 import 'package:subsaver/core/widgets/shimmer_loading.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_state.dart';
@@ -27,7 +27,7 @@ class _SettlementPageState extends State<SettlementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PremiumAppBar(title: 'Settle Up', showBack: true),
+      appBar: const SubSavrAppBar(title: 'Settle Up', showBack: true),
       body: BlocBuilder<SettlementBloc, SettlementState>(
         builder: (context, state) {
           if (state is SettlementLoading) {

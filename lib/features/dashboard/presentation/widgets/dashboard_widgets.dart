@@ -327,8 +327,10 @@ class SkillshareDealBanner extends StatelessWidget {
   }
 }
 
-class PremiumBottomNav extends StatelessWidget {
-  const PremiumBottomNav({
+/// Instagram-style floating bottom navigation: a detached, rounded, blurred
+/// pill that sits above the screen edge with an animated selected highlight.
+class SubSavrNavBar extends StatelessWidget {
+  const SubSavrNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
@@ -337,47 +339,63 @@ class PremiumBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
+  static const _items = <_NavDestination>[
+    _NavDestination(
+      label: 'Home',
+      icon: Icons.account_balance_outlined,
+      selectedIcon: Icons.account_balance,
+    ),
+    _NavDestination(
+      label: 'Insights',
+      icon: Icons.insights_outlined,
+      selectedIcon: Icons.insights,
+    ),
+    _NavDestination(
+      label: 'Profile',
+      icon: Icons.manage_accounts_outlined,
+      selectedIcon: Icons.manage_accounts,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: Container(
-          height: 80,
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceBright.withValues(alpha: 0.85),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, -4),
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, 0, 24, 12 + (bottomInset > 0 ? 4 : 8)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            height: 64,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceBright.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.6),
+                width: 1,
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.account_balance_outlined,
-                selectedIcon: Icons.account_balance,
-                selected: currentIndex == 0,
-                onTap: () => onTap(0),
-              ),
-              _NavItem(
-                icon: Icons.insights_outlined,
-                selectedIcon: Icons.insights,
-                selected: currentIndex == 1,
-                onTap: () => onTap(1),
-              ),
-              _NavItem(
-                icon: Icons.manage_accounts_outlined,
-                selectedIcon: Icons.manage_accounts,
-                selected: currentIndex == 2,
-                onTap: () => onTap(2),
-              ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                for (var i = 0; i < _items.length; i++)
+                  _NavItem(
+                    destination: _items[i],
+                    selected: currentIndex == i,
+                    onTap: () => onTap(i),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -385,16 +403,26 @@ class PremiumBottomNav extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
+class _NavDestination {
+  const _NavDestination({
+    required this.label,
     required this.icon,
     required this.selectedIcon,
+  });
+
+  final String label;
+  final IconData icon;
+  final IconData selectedIcon;
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.destination,
     required this.selected,
     required this.onTap,
   });
 
-  final IconData icon;
-  final IconData selectedIcon;
+  final _NavDestination destination;
   final bool selected;
   final VoidCallback onTap;
 
@@ -403,13 +431,47 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: selected ? 1.1 : 1.0,
-        duration: const Duration(milliseconds: 200),
-        child: Icon(
-          selected ? selectedIcon : icon,
-          color: selected ? AppColors.primary : AppColors.outline,
-          size: 28,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedScale(
+              scale: selected ? 1.05 : 1.0,
+              duration: const Duration(milliseconds: 240),
+              child: Icon(
+                selected ? destination.selectedIcon : destination.icon,
+                color: selected ? AppColors.primary : AppColors.outline,
+                size: 24,
+              ),
+            ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 240),
+              curve: Curves.easeOutCubic,
+              child: selected
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(
+                        destination.label,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
         ),
       ),
     );

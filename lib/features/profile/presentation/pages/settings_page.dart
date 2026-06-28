@@ -5,6 +5,7 @@ import 'package:subsaver/core/constants/app_constants.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
 import 'package:subsaver/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/injection_container.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_event.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -125,9 +126,13 @@ class _BiometricSettingsTileState extends State<_BiometricSettingsTile> {
   Future<void> _toggle(bool value) async {
     if (!_available) return;
     if (value) {
-      final unlocked = await _authRepository.unlockWithBiometric();
-      await _authRepository.setBiometricEnabled(true);
-      if (mounted) setState(() => _enabled = true);
+      try {
+        await _authRepository.unlockWithBiometric();
+        await _authRepository.setBiometricEnabled(true);
+        if (mounted) setState(() => _enabled = true);
+      } catch (_) {
+        if (mounted) setState(() => _enabled = false);
+      }
       return;
     }
     await _authRepository.setBiometricEnabled(false);

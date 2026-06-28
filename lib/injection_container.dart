@@ -32,6 +32,7 @@ import 'package:subsaver/core/services/ocr_service.dart';
 import 'package:subsaver/core/services/reminder_service.dart';
 import 'package:subsaver/features/settlements/data/repositories/payment_proof_repository_impl.dart';
 import 'package:subsaver/features/settlements/domain/repositories/payment_proof_repository.dart';
+import 'package:subsaver/features/settlements/presentation/bloc/payment_proof_bloc.dart';
 import 'package:subsaver/core/services/offline_sync_service.dart';
 import 'package:subsaver/core/services/session_storage_service.dart';
 import 'package:subsaver/core/services/biometric_auth_service.dart';
@@ -98,6 +99,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SignInWithApple(sl()));
   sl.registerLazySingleton(() => SignOut(sl()));
   sl.registerLazySingleton(() => UnlockWithBiometric(sl()));
+  sl.registerLazySingleton(() => RestoreTrustedSession(sl()));
   sl.registerLazySingleton(() => ClearTrustedSession(sl()));
   sl.registerLazySingleton(() => GetUserProfile(sl()));
   sl.registerLazySingleton(() => UpdateUserProfile(sl()));
@@ -126,6 +128,7 @@ Future<void> initDependencies() async {
         signInWithApple: sl(),
         signOut: sl(),
         unlockWithBiometric: sl(),
+        restoreTrustedSession: sl(),
         clearTrustedSession: sl(),
       ));
   sl.registerFactory(() => ProfileBloc(
@@ -157,6 +160,10 @@ Future<void> initDependencies() async {
         expenseRepository: sl(),
       ));
   sl.registerFactory(() => SettlementBloc(simplifyDebts: sl(), expenseRepository: sl()));
+  sl.registerFactory(() => PaymentProofBloc(
+        ocrService: sl(),
+        paymentProofRepository: sl(),
+      ));
   sl.registerFactory(() => AnalyticsBloc(analyticsRepository: sl()));
   sl.registerFactory(() => NotificationBloc(notificationRepository: sl()));
   sl.registerFactory(() => WalletBloc(walletRepository: sl()));

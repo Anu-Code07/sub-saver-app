@@ -8,7 +8,7 @@ import 'package:subsaver/core/constants/subscription_categories.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/utils/formatters.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_state.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -36,7 +36,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PremiumAppBar(
+      appBar: SubSavrAppBar(
         title: 'Group',
         showBack: true,
       ),

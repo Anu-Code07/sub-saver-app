@@ -1,16 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:subsaver/core/services/ocr_service.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/utils/formatters.dart';
-import 'package:subsaver/core/utils/payment_receipt_parser.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
-import 'package:subsaver/features/settlements/domain/repositories/payment_proof_repository.dart';
-import 'package:subsaver/injection_container.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
+import 'package:subsaver/features/settlements/presentation/bloc/payment_proof_bloc.dart';
 
 class PaymentProofPage extends StatefulWidget {
   const PaymentProofPage({
@@ -34,11 +32,15 @@ class PaymentProofPage extends StatefulWidget {
 
 class _PaymentProofPageState extends State<PaymentProofPage> {
   final _picker = ImagePicker();
-  String? _imagePath;
-  String? _ocrText;
-  double? _parsedAmount;
-  String? _referenceId;
-  bool _uploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<PaymentProofBloc>().add(const PaymentProofResetRequested());
+    });
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     if (source == ImageSource.camera) {
@@ -47,109 +49,152 @@ class _PaymentProofPageState extends State<PaymentProofPage> {
     }
     final file = await _picker.pickImage(source: source, imageQuality: 85);
     if (file == null) return;
-    setState(() => _imagePath = file.path);
-
-    final ocr = sl<OcrService>();
-    final text = await ocr.recognizeFromFile(file.path);
-    final parsed = PaymentReceiptParser.parse(text);
-    setState(() {
-      _ocrText = text;
-      _parsedAmount = parsed.amount;
-      _referenceId = parsed.referenceId;
-    });
+    if (!mounted) return;
+    context.read<PaymentProofBloc>().add(PaymentProofImageSelected(file.path));
   }
 
-  Future<void> _upload() async {
-    if (_imagePath == null) return;
-    setState(() => _uploading = true);
-    try {
-      await sl<PaymentProofRepository>().uploadProof(
-        groupId: widget.groupId,
-        expenseId: widget.expenseId,
-        subscriptionId: widget.subscriptionId,
-        uploadedBy: widget.userId,
-        localImagePath: _imagePath!,
-        ocrText: _ocrText,
-        amount: _parsedAmount,
-        referenceId: _referenceId,
-      );
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment proof uploaded for review')));
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    } finally {
-      if (mounted) setState(() => _uploading = false);
-    }
+  void _upload() {
+    context.read<PaymentProofBloc>().add(PaymentProofSubmitRequested(
+          groupId: widget.groupId,
+          expenseId: widget.expenseId,
+          subscriptionId: widget.subscriptionId,
+          uploadedBy: widget.userId,
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
-    final amountMatch = widget.expectedAmount != null &&
-        _parsedAmount != null &&
-        (_parsedAmount! - widget.expectedAmount!).abs() < 1;
-
     return Scaffold(
-      appBar: const PremiumAppBar(title: 'Upload Payment Proof', showBack: true),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text('Take a screenshot of your UPI/bank payment', style: TextStyle(color: AppColors.textSecondary)),
-          const SizedBox(height: 16),
-          Row(
+      appBar: const SubSavrAppBar(title: 'Upload Payment Proof', showBack: true),
+      body: BlocConsumer<PaymentProofBloc, PaymentProofState>(
+        listener: (context, state) {
+          if (state.isSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payment proof uploaded for review')),
+            );
+            Navigator.pop(context, true);
+          } else if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage!)),
+            );
+          }
+        },
+        builder: (context, state) {
+          final amountMatch = widget.expectedAmount != null &&
+              state.parsedAmount != null &&
+              (state.parsedAmount! - widget.expectedAmount!).abs() < 1;
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text('Camera'),
-                ),
+              const Text(
+                'Take a screenshot of your UPI/bank payment',
+                style: TextStyle(color: AppColors.textSecondary),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_outlined),
-                  label: const Text('Gallery'),
-                ),
-              ),
-            ],
-          ),
-          if (_imagePath != null) ...[
-            const SizedBox(height: 16),
-            GlassCard(
-              padding: EdgeInsets.zero,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.file(File(_imagePath!), fit: BoxFit.cover, height: 200, width: double.infinity),
-              ),
-            ),
-          ],
-          if (_parsedAmount != null) ...[
-            const SizedBox(height: 16),
-            GlassCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(amountMatch ? Icons.check_circle : Icons.warning_amber, color: amountMatch ? AppColors.paidGreen : AppColors.pendingOrange),
-                      const SizedBox(width: 8),
-                      Text('Detected: ${CurrencyFormatter.format(_parsedAmount!)}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                    ],
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: state.isScanning || state.isUploading
+                          ? null
+                          : () => _pickImage(ImageSource.camera),
+                      icon: const Icon(Icons.camera_alt_outlined),
+                      label: const Text('Camera'),
+                    ),
                   ),
-                  if (_referenceId != null) Text('Ref: $_referenceId', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: state.isScanning || state.isUploading
+                          ? null
+                          : () => _pickImage(ImageSource.gallery),
+                      icon: const Icon(Icons.photo_outlined),
+                      label: const Text('Gallery'),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _imagePath == null || _uploading ? null : _upload,
-            child: _uploading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Submit for review'),
-          ),
-        ],
+              if (state.localImagePath != null) ...[
+                const SizedBox(height: 16),
+                GlassCard(
+                  padding: EdgeInsets.zero,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.file(
+                      File(state.localImagePath!),
+                      fit: BoxFit.cover,
+                      height: 200,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+              ],
+              if (state.isScanning) ...[
+                const SizedBox(height: 16),
+                const GlassCard(
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 12),
+                      Text('Scanning receipt with OCR...'),
+                    ],
+                  ),
+                ),
+              ],
+              if (state.parsedAmount != null) ...[
+                const SizedBox(height: 16),
+                GlassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            amountMatch ? Icons.check_circle : Icons.warning_amber,
+                            color: amountMatch
+                                ? AppColors.paidGreen
+                                : AppColors.pendingOrange,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Detected: ${CurrencyFormatter.format(state.parsedAmount!)}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      if (state.referenceId != null)
+                        Text(
+                          'Ref: ${state.referenceId}',
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: state.localImagePath == null || state.isUploading
+                    ? null
+                    : _upload,
+                child: state.isUploading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Submit for review'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

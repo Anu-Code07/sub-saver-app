@@ -16,6 +16,7 @@ import 'package:subsaver/features/authentication/presentation/bloc/auth_state.da
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_state.dart';
 import 'package:subsaver/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:subsaver/features/settlements/presentation/bloc/payment_proof_bloc.dart';
 import 'package:subsaver/firebase_options.dart';
 import 'package:subsaver/injection_container.dart' as di;
 
@@ -74,6 +75,7 @@ class _SubSavrAppState extends State<SubSavrApp> {
         BlocProvider(create: (_) => di.sl<CreateSubscriptionBloc>()),
         BlocProvider(create: (_) => di.sl<GroupBloc>()),
         BlocProvider(create: (_) => di.sl<SettlementBloc>()),
+        BlocProvider(create: (_) => di.sl<PaymentProofBloc>()),
         BlocProvider(create: (_) => di.sl<AnalyticsBloc>()),
         BlocProvider(create: (_) => di.sl<NotificationBloc>()),
         BlocProvider(create: (_) => di.sl<WalletBloc>()),

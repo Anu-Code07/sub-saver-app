@@ -89,6 +89,8 @@ void main() {
       mockRepo = MockAuthRepository();
       when(() => mockRepo.authStateChanges).thenAnswer((_) => const Stream.empty());
       when(() => mockRepo.currentUser).thenReturn(null);
+      when(() => mockRepo.hasTrustedSession()).thenAnswer((_) async => false);
+      when(() => mockRepo.isBiometricEnabled()).thenAnswer((_) async => false);
       bloc = AuthBloc(
         authRepository: mockRepo,
         signInWithPhone: SignInWithPhone(mockRepo),
@@ -96,6 +98,9 @@ void main() {
         signInWithGoogle: SignInWithGoogle(mockRepo),
         signInWithApple: SignInWithApple(mockRepo),
         signOut: SignOut(mockRepo),
+        unlockWithBiometric: UnlockWithBiometric(mockRepo),
+        restoreTrustedSession: RestoreTrustedSession(mockRepo),
+        clearTrustedSession: ClearTrustedSession(mockRepo),
       );
     });
 

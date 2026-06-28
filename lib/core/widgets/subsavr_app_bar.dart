@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 
-class PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const PremiumAppBar({
+class SubSavrAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const SubSavrAppBar({
     super.key,
     required this.title,
     this.actions,

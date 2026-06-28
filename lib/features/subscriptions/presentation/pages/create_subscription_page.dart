@@ -8,7 +8,7 @@ import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/utils/subscription_detector.dart';
 import 'package:subsaver/core/utils/validators.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_state.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -223,7 +223,7 @@ class _CreateSubscriptionPageState extends State<CreateSubscriptionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PremiumAppBar(title: 'New Subscription', showBack: true),
+      appBar: const SubSavrAppBar(title: 'New Subscription', showBack: true),
       body: BlocListener<CreateSubscriptionBloc, CreateSubscriptionState>(
         listener: (context, state) {
           if (state is CreateSubscriptionSuccess) {

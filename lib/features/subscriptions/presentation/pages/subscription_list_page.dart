@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/utils/formatters.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
 import 'package:subsaver/core/widgets/shimmer_loading.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_state.dart';
@@ -31,7 +31,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PremiumAppBar(
+      appBar: SubSavrAppBar(
         title: 'Subscriptions',
         showBack: true,
         actions: [

@@ -46,6 +46,10 @@ class AuthBiometricUnlockRequested extends AuthEvent {
   const AuthBiometricUnlockRequested();
 }
 
+class AuthBiometricBypassRequested extends AuthEvent {
+  const AuthBiometricBypassRequested();
+}
+
 class AuthUseDifferentAccountRequested extends AuthEvent {
   const AuthUseDifferentAccountRequested();
 }

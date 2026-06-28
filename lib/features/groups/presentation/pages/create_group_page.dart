@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/core/widgets/premium_app_bar.dart';
+import 'package:subsaver/core/widgets/subsavr_app_bar.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_state.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -47,7 +47,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PremiumAppBar(title: 'Create Group', showBack: true),
+      appBar: const SubSavrAppBar(title: 'Create Group', showBack: true),
       body: BlocListener<GroupBloc, GroupState>(
         listener: (context, state) {
           if (state is GroupCreated) {

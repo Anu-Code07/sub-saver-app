@@ -34,22 +34,21 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: '1:000000000000:android:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'subsaver-app',
-    storageBucket: 'subsaver-app.appspot.com',
+    apiKey: 'AIzaSyDMSfF0134H1nSAoOxb_F4KY0miXKeavbI',
+    appId: '1:444517766764:android:90b4ae8bb43e465c106a49',
+    messagingSenderId: '444517766764',
+    projectId: 'my-gods-of-war',
+    storageBucket: 'my-gods-of-war.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: '1:000000000000:ios:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'subsaver-app',
-    storageBucket: 'subsaver-app.appspot.com',
+    apiKey: 'AIzaSyD3QdDgVp36RXkaixjhXMS06iwOPwZ428Q',
+    appId: '1:444517766764:ios:5ea79b4ef8a2e3d1106a49',
+    messagingSenderId: '444517766764',
+    projectId: 'my-gods-of-war',
+    storageBucket: 'my-gods-of-war.firebasestorage.app',
+    iosClientId: '444517766764-mrs2ob172ekml1kl21bupbr9hg525n7v.apps.googleusercontent.com',
     iosBundleId: 'com.subsaver.subsaver',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'YOUR_MACOS_API_KEY',
     appId: '1:000000000000:ios:0000000000000000000000',

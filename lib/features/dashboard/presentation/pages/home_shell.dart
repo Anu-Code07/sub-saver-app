@@ -38,7 +38,7 @@ class _HomeShellState extends State<HomeShell> {
       extendBody: true,
       backgroundColor: const Color(0xFFF9F9FB),
       body: pages[_index],
-      bottomNavigationBar: PremiumBottomNav(
+      bottomNavigationBar: SubSavrNavBar(
         currentIndex: _index,
         onTap: _onTabSelected,
       ),

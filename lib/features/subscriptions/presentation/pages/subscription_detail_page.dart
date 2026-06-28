@@ -252,27 +252,29 @@ class _Body extends StatelessWidget {
         Text('Subscription Info',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: _BentoCard(
-                icon: LucideIcons.calendar,
-                iconColor: AppColors.primary,
-                label: 'Next billing',
-                value: DateFormatter.formatDate(subscription.renewalDate),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _BentoCard(
+                  icon: LucideIcons.calendar,
+                  iconColor: AppColors.primary,
+                  label: 'Next billing',
+                  value: DateFormatter.formatDate(subscription.renewalDate),
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _BentoCard(
-                icon: LucideIcons.pieChart,
-                iconColor: AppColors.secondary,
-                label: 'Monthly cost',
-                value: CurrencyFormatter.format(subscription.monthlyCost),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _BentoCard(
+                  icon: LucideIcons.pieChart,
+                  iconColor: AppColors.secondary,
+                  label: 'Monthly cost',
+                  value: CurrencyFormatter.format(subscription.monthlyCost),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         _WideBentoCard(
