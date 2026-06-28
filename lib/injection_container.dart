@@ -33,6 +33,8 @@ import 'package:subsaver/core/services/reminder_service.dart';
 import 'package:subsaver/features/settlements/data/repositories/payment_proof_repository_impl.dart';
 import 'package:subsaver/features/settlements/domain/repositories/payment_proof_repository.dart';
 import 'package:subsaver/core/services/offline_sync_service.dart';
+import 'package:subsaver/core/services/session_storage_service.dart';
+import 'package:subsaver/core/services/biometric_auth_service.dart';
 
 final sl = GetIt.instance;
 
@@ -52,6 +54,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => HiveService());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton(() => const DebtSimplifier());
+  sl.registerLazySingleton(() => SessionStorageService(sl()));
+  sl.registerLazySingleton(() => BiometricAuthService());
 
   // Data sources
   sl.registerLazySingleton<AuthDataSource>(() {
@@ -73,7 +77,9 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => NotificationRemoteDataSource(sl()));
 
   // Repositories
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(sl(), sl(), sl()),
+  );
   sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<SubscriptionRepository>(() => SubscriptionRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<GroupRepository>(() => GroupRepositoryImpl(sl(), sl()));
@@ -91,6 +97,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SignInWithGoogle(sl()));
   sl.registerLazySingleton(() => SignInWithApple(sl()));
   sl.registerLazySingleton(() => SignOut(sl()));
+  sl.registerLazySingleton(() => UnlockWithBiometric(sl()));
+  sl.registerLazySingleton(() => ClearTrustedSession(sl()));
   sl.registerLazySingleton(() => GetUserProfile(sl()));
   sl.registerLazySingleton(() => UpdateUserProfile(sl()));
   sl.registerLazySingleton(() => CreateSubscription(sl()));
@@ -117,6 +125,8 @@ Future<void> initDependencies() async {
         signInWithGoogle: sl(),
         signInWithApple: sl(),
         signOut: sl(),
+        unlockWithBiometric: sl(),
+        clearTrustedSession: sl(),
       ));
   sl.registerFactory(() => ProfileBloc(
         getUserProfile: sl(),

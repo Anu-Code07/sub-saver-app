@@ -8,6 +8,14 @@ abstract class AuthRepository {
   Future<UserEntity> signInWithGoogle();
   Future<UserEntity> signInWithApple();
   Future<void> signOut();
+  Future<bool> hasTrustedSession();
+  Future<bool> isBiometricEnabled();
+  Future<bool> canUseBiometrics();
+  Future<void> setBiometricEnabled(bool enabled);
+  Future<UserEntity?> readTrustedUser();
+  Future<UserEntity> unlockWithBiometric();
+  Future<UserEntity> restoreTrustedSession();
+  Future<void> clearTrustedSession();
 }
 
 abstract class UserRepository {

@@ -19,6 +19,7 @@ class AppConstants {
   static const String themeModeKey = 'theme_mode';
   static const String currencyKey = 'currency';
   static const String notificationSettingsKey = 'notification_settings';
+  static const String biometricEnabledKey = 'biometric_enabled';
 
   // Firestore collections
   static const String usersCollection = 'users';

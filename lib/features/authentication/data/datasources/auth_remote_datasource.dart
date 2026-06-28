@@ -113,6 +113,11 @@ class AuthRemoteDataSource implements AuthDataSource {
     await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }
 
+  @override
+  void restoreSession(UserEntity user) {
+    // Firebase Auth persists the session across app restarts.
+  }
+
   Future<UserEntity> _ensureUserProfile(User firebaseUser, {String? appleName}) async {
     final docRef = _firestore.doc(FirestorePaths.user(firebaseUser.uid));
     final doc = await docRef.get();

@@ -5,6 +5,7 @@ import 'package:subsaver/core/config/app_config.dart';
 import 'package:subsaver/core/constants/app_constants.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_state.dart';
+import 'package:subsaver/features/authentication/presentation/pages/biometric_lock_page.dart';
 import 'package:subsaver/features/authentication/presentation/pages/login_page.dart';
 import 'package:subsaver/features/authentication/presentation/pages/otp_page.dart';
 import 'package:subsaver/features/onboarding/presentation/pages/onboarding_page.dart';
@@ -39,14 +40,20 @@ class AppRouter {
       redirect: (context, state) {
         final authState = context.read<AuthBloc>().state;
         final isAuth = authState is AuthAuthenticated;
+        final needsBiometric = authState is AuthBiometricRequired;
         final isAuthRoute = state.matchedLocation == '/login' ||
             state.matchedLocation == '/otp' ||
+            state.matchedLocation == '/lock' ||
             state.matchedLocation == '/onboarding' ||
             state.matchedLocation == '/';
 
-        if (!isAuth && !isAuthRoute) return '/login';
-        // TODO(release): Restore full redirect when [AppConfig.alwaysShowOnboarding] is false.
-        if (isAuth && state.matchedLocation == '/login') return '/home';
+        if (needsBiometric && state.matchedLocation != '/lock') {
+          return '/lock';
+        }
+        if (!isAuth && !needsBiometric && !isAuthRoute) return '/login';
+        if (isAuth && (state.matchedLocation == '/login' || state.matchedLocation == '/lock')) {
+          return '/home';
+        }
         if (isAuth &&
             state.matchedLocation == '/' &&
             !AppConfig.alwaysShowOnboarding) {
@@ -58,6 +65,7 @@ class AppRouter {
         GoRoute(path: '/', builder: (_, __) => const SplashPage()),
         GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingPage()),
         GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+        GoRoute(path: '/lock', builder: (_, __) => const BiometricLockPage()),
         GoRoute(
           path: '/otp',
           builder: (_, state) {

@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>SubSavr uses Face ID so you can unlock the app without entering OTP every time.</string>
 </dict>
 </plist>

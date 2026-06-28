@@ -81,6 +81,37 @@ class SignOut {
   }
 }
 
+class UnlockWithBiometric {
+  UnlockWithBiometric(this._repository);
+  final AuthRepository _repository;
+
+  Future<Either<Failure, UserEntity>> call() async {
+    try {
+      final user = await _repository.unlockWithBiometric();
+      return Right(user);
+    } on AuthFailure catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+}
+
+class ClearTrustedSession {
+  ClearTrustedSession(this._repository);
+  final AuthRepository _repository;
+
+  Future<Either<Failure, void>> call() async {
+    try {
+      await _repository.clearTrustedSession();
+      await _repository.signOut();
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+}
+
 class GetUserProfile {
   GetUserProfile(this._repository);
   final UserRepository _repository;

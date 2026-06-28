@@ -47,3 +47,14 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+class AuthBiometricRequired extends AuthState {
+  const AuthBiometricRequired({this.userName, this.phone, this.errorMessage});
+
+  final String? userName;
+  final String? phone;
+  final String? errorMessage;
+
+  @override
+  List<Object?> get props => [userName, phone, errorMessage];
+}

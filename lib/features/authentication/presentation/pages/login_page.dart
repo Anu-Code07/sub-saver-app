@@ -56,6 +56,8 @@ class _LoginPageState extends State<LoginPage> {
                   });
                 } else if (state is AuthAuthenticated) {
                   context.go('/home');
+                } else if (state is AuthBiometricRequired) {
+                  context.go('/lock');
                 } else if (state is AuthError) {
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text(state.message)));

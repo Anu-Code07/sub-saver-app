@@ -8,4 +8,5 @@ abstract class AuthDataSource {
   Future<UserEntity> signInWithGoogle();
   Future<UserEntity> signInWithApple();
   Future<void> signOut();
+  void restoreSession(UserEntity user);
 }

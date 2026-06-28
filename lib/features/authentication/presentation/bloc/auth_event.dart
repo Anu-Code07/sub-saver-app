@@ -41,3 +41,11 @@ class AuthAppleSignInRequested extends AuthEvent {
 class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();
 }
+
+class AuthBiometricUnlockRequested extends AuthEvent {
+  const AuthBiometricUnlockRequested();
+}
+
+class AuthUseDifferentAccountRequested extends AuthEvent {
+  const AuthUseDifferentAccountRequested();
+}

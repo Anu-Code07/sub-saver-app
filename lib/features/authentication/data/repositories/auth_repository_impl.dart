@@ -1,7 +1,9 @@
 import 'package:subsaver/core/constants/app_constants.dart';
 import 'package:subsaver/core/errors/exceptions.dart';
 import 'package:subsaver/core/errors/failures.dart';
+import 'package:subsaver/core/services/biometric_auth_service.dart';
 import 'package:subsaver/core/services/hive_service.dart';
+import 'package:subsaver/core/services/session_storage_service.dart';
 import 'package:subsaver/features/authentication/data/datasources/auth_datasource.dart';
 import 'package:subsaver/features/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:subsaver/features/authentication/data/models/user_model.dart';
@@ -9,9 +11,15 @@ import 'package:subsaver/features/authentication/domain/entities/user_entity.dar
 import 'package:subsaver/features/authentication/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._remote);
+  AuthRepositoryImpl(
+    this._remote,
+    this._sessionStorage,
+    this._biometricAuth,
+  );
 
   final AuthDataSource _remote;
+  final SessionStorageService _sessionStorage;
+  final BiometricAuthService _biometricAuth;
 
   @override
   Stream<UserEntity?> get authStateChanges => _remote.authStateChanges;
@@ -33,7 +41,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> verifyOtp(String verificationId, String otp) async {
     try {
-      return await _remote.verifyOtp(verificationId, otp);
+      final user = await _remote.verifyOtp(verificationId, otp);
+      await _persistTrustedLogin(user);
+      return user;
     } on AuthException catch (e) {
       throw AuthFailure(e.message);
     } catch (e) {
@@ -44,7 +54,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> signInWithGoogle() async {
     try {
-      return await _remote.signInWithGoogle();
+      final user = await _remote.signInWithGoogle();
+      await _persistTrustedLogin(user);
+      return user;
     } on AuthException catch (e) {
       throw AuthFailure(e.message);
     } catch (e) {
@@ -55,7 +67,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> signInWithApple() async {
     try {
-      return await _remote.signInWithApple();
+      final user = await _remote.signInWithApple();
+      await _persistTrustedLogin(user);
+      return user;
     } on AuthException catch (e) {
       throw AuthFailure(e.message);
     } catch (e) {
@@ -64,7 +78,67 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() => _remote.signOut();
+  Future<void> signOut() async {
+    await _sessionStorage.clearTrustedSession();
+    await _remote.signOut();
+  }
+
+  @override
+  Future<bool> hasTrustedSession() => _sessionStorage.hasTrustedSession();
+
+  @override
+  Future<bool> isBiometricEnabled() async => _sessionStorage.isBiometricEnabled();
+
+  @override
+  Future<bool> canUseBiometrics() => _biometricAuth.canUseBiometrics();
+
+  @override
+  Future<void> setBiometricEnabled(bool enabled) =>
+      _sessionStorage.setBiometricEnabled(enabled);
+
+  @override
+  Future<UserEntity?> readTrustedUser() => _sessionStorage.readTrustedUser();
+
+  @override
+  Future<UserEntity> unlockWithBiometric() async {
+    final stored = await _sessionStorage.readTrustedUser();
+    if (stored == null) {
+      throw const AuthFailure('No saved session. Please sign in with OTP.');
+    }
+
+    final passed = await _biometricAuth.authenticate(
+      reason: 'Unlock SubSavr to access your subscriptions',
+    );
+    if (!passed) {
+      throw const AuthFailure('Biometric verification failed');
+    }
+
+    return _activateStoredSession(stored);
+  }
+
+  @override
+  Future<UserEntity> restoreTrustedSession() async {
+    final stored = await _sessionStorage.readTrustedUser();
+    if (stored == null) {
+      throw const AuthFailure('No saved session. Please sign in with OTP.');
+    }
+    return _activateStoredSession(stored);
+  }
+
+  @override
+  Future<void> clearTrustedSession() => _sessionStorage.clearTrustedSession();
+
+  Future<void> _persistTrustedLogin(UserEntity user) async {
+    await _sessionStorage.saveTrustedUser(user);
+    if (await _biometricAuth.canUseBiometrics()) {
+      await _sessionStorage.setBiometricEnabled(true);
+    }
+  }
+
+  UserEntity _activateStoredSession(UserEntity stored) {
+    _remote.restoreSession(stored);
+    return _remote.currentUser ?? stored;
+  }
 }
 
 class UserRepositoryImpl implements UserRepository {

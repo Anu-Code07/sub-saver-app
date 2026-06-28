@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:subsaver/core/constants/app_constants.dart';
 import 'package:subsaver/core/theme/app_theme.dart';
 import 'package:subsaver/core/widgets/glass_card.dart';
-import 'package:subsaver/features/authentication/presentation/bloc/auth_bloc.dart';
+import 'package:subsaver/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:subsaver/injection_container.dart';
 import 'package:subsaver/features/authentication/presentation/bloc/auth_event.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:subsaver/features/dashboard/presentation/bloc/dashboard_state.dart';
@@ -42,6 +43,8 @@ class SettingsPage extends StatelessWidget {
               );
             },
           ),
+          const SizedBox(height: 8),
+          const _BiometricSettingsTile(),
           const SizedBox(height: 8),
           _SettingsTile(icon: Icons.currency_rupee, title: 'Currency', subtitle: AppConstants.defaultCurrency, onTap: () {}),
           _SettingsTile(icon: Icons.notifications_outlined, title: 'Notifications', subtitle: 'Manage alerts', onTap: () => context.push('/notifications')),
@@ -85,6 +88,79 @@ class SettingsPage extends StatelessWidget {
       context.read<AuthBloc>().add(const AuthSignOutRequested());
       context.go('/login');
     }
+  }
+}
+
+class _BiometricSettingsTile extends StatefulWidget {
+  const _BiometricSettingsTile();
+
+  @override
+  State<_BiometricSettingsTile> createState() => _BiometricSettingsTileState();
+}
+
+class _BiometricSettingsTileState extends State<_BiometricSettingsTile> {
+  late final AuthRepository _authRepository = sl<AuthRepository>();
+  bool _enabled = false;
+  bool _available = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final enabled = await _authRepository.isBiometricEnabled();
+    final available = await _authRepository.canUseBiometrics();
+    if (mounted) {
+      setState(() {
+        _enabled = enabled;
+        _available = available;
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _toggle(bool value) async {
+    if (!_available) return;
+    if (value) {
+      final unlocked = await _authRepository.unlockWithBiometric();
+      await _authRepository.setBiometricEnabled(true);
+      if (mounted) setState(() => _enabled = true);
+      return;
+    }
+    await _authRepository.setBiometricEnabled(false);
+    if (mounted) setState(() => _enabled = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const GlassCard(
+        child: ListTile(
+          leading: Icon(Icons.face_outlined),
+          title: Text('Face / fingerprint lock'),
+          trailing: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+        ),
+      );
+    }
+
+    return GlassCard(
+      child: SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        secondary: const Icon(Icons.face_outlined, color: AppColors.textSecondary),
+        title: const Text('Face / fingerprint lock'),
+        subtitle: Text(
+          _available
+              ? 'Skip OTP on return — unlock with biometrics'
+              : 'Not available on this device',
+          style: const TextStyle(fontSize: 12),
+        ),
+        value: _enabled && _available,
+        onChanged: _available ? _toggle : null,
+      ),
+    );
   }
 }
 

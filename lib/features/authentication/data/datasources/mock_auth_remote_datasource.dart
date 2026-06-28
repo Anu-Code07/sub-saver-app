@@ -72,6 +72,12 @@ class MockAuthRemoteDataSource implements AuthDataSource {
     _controller.add(null);
   }
 
+  @override
+  void restoreSession(UserEntity user) {
+    _user = user;
+    _controller.add(user);
+  }
+
   UserEntity _signInDemoUser(String provider) {
     final user = UserModel(
       id: 'mock-user-$provider',
